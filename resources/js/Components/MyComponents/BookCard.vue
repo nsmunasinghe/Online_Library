@@ -1,18 +1,24 @@
 <template>
-    <div 
+    <div
         class="flex justify-center bg-none"
     >
-        <div class="w-[180px] h-[265px] flex flex-col p-2 items-center justify-between bg-slate-700 rounded-md shadow-lg ring-4 hover:ring-sky-500">
-            <p class="text-white text-lg font-bold">{{ title }}</p>
-            <p class="text-white text-sm text-center line-clamp-3">{{ description }}</p>
-            <p class="text-white text-xs">{{ genre }}</p>
-            <p class="text-white text-lg font-bold">Rs. {{ price }}</p>
+        <div
+            class="w-[160px] h-[220px] sm:w-[180px] sm:h-[265px] flex flex-col p-2 items-center justify-between rounded-md shadow-lg ring-4"
+            :class="{
+                'bg-slate-700 hover:ring-sky-500': !isBorrowed,
+                'bg-red-950 ring-red-700 hover:ring-red-500': isBorrowed
+            }"
+        >
+            <p class="font-serif text-white text-sn sm:text-md text-center font-extrabold p-1 bg-black/25 rounded-md w-full">{{ title }}</p>
+            <p class="text-gray-300 text-xs sm:text-sm text-center line-clamp-3">{{ description }}</p>
+            <p class="text-white text-xs italic">{{ genre }}</p>
+            <p class="text-white text-md sm:text-lg font-bold">Rs. {{ price }}</p>
 
             <button
                 @click="showConfirmationAlert"
-                class="w-full p-1 flex justify-center items-center rounded-lg font-extrabold text-lg hover:bg-opacity-80"
+                class="w-full p-1 flex justify-center items-center rounded-lg font-extrabold text-md sm:text-lg hover:bg-opacity-80"
                 :class="{
-                    'bg-green-300 hover:bg-green-500': !isBorrowed,
+                    'bg-green-300 hover:text-white hover:bg-green-500': !isBorrowed,
                     'bg-red-500 text-white hover:bg-red-700': isBorrowed
                 }"
             >

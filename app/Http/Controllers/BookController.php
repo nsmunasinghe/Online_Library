@@ -16,11 +16,7 @@ class BookController extends Controller
     public function index(Request $request)
     {
         try{
-            // return response()->json($this->book->all(), 200);
-
-            $books = Book::with('users')->get();
-
-            $books->transform(function($book) {
+            $books = Book::with('users')->get()->transform(function($book) {
                 $book->alreadyBorrowed = $book->users()->wherePivot('returned_at', null)->exists();
                 return $book;
             });

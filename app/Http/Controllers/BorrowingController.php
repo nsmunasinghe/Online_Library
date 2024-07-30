@@ -53,14 +53,19 @@ class BorrowingController extends Controller
     }
 
     public function checkStatus(Book $book){
-        try{
-            // Check if the book is already borrowed
-            $alreadyBorrowed = $book->users()->wherePivot('returned_at', null)->exists();
+        try {
+            $userBook = $book->users()->wherePivot('returned_at', null)->first();
 
-            return response()->json(['isBorrowed' => $alreadyBorrowed], 200);
-        }
-        catch(\Exception $e){
-            return response()->json(['error' => 'Book borrorw failed.'], 500);
+            if ($userBook) {
+                return response()->json([
+                    'isBorrowed' => true,
+                    'borrowed_at' => $userBook->pivot->borrowed_at, // Assuming you have the 'borrowed_at' field
+                ], 200);
+            } else {
+                return response()->json(['isBorrowed' => false], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to check book status: ' . $e->getMessage()], 500);
         }
     }
 }

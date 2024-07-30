@@ -7,36 +7,32 @@
                     <div class="shadow overflow-hidden rounded-lg">
                         <table class="min-w-full">
                             <tbody>
-                                <tr v-for="book in books" class="flex bg-white mb-2 rounded-lg">
+                                <tr v-for="book in books" class="flex bg-slate-700 mb-2 rounded-lg">
                                     <td class="p-3 sm:px-6 sm:py-4 whitespace-nowrap">
                                         <div class="w-[90px] h-[160px] sm:w-[75px] sm:h-[100px] bg-slate-400 flex justify-center items-center rounded-md shadow-md text-white italic">Image</div>
                                     </td>
                                     <div class="flex flex-col flex-grow sm:flex-row items-center">
                                         <td class="p-3 sm:px-6 sm:py-4 whitespace-nowrap flex flex-grow">
                                             <div class="flex flex-col grow text-wrap">
-                                                <h1 class="text-xl font-bold text-gray-900">
-                                                    {{ book.title }} <span class="text-sm text-gray-500"> &nbsp | &nbsp {{ book.genre }}</span>
+                                                <h1 class="text-xl font-bold text-white">
+                                                    {{ book.title }} <span class="text-sm text-slate-300"> &nbsp | &nbsp {{ book.genre }}</span>
                                                 </h1>
-                                                <p class="text-sm text-gray-500 line-clamp-3">
+                                                <p class="text-sm text-slate-400 line-clamp-3">
                                                     {{ book.description }}
                                                 </p>
                                             </div>
                                         </td>
                                         <td class="sm:px-6 sm:py-4 whitespace-nowrap">
                                             <div class="flex sm:flex-col gap-10 sm:gap-0 item-center">
-                                                <h3 class="text-sm font-medium text-gray-900">
-                                                    Due Date
+                                                <h3 class="text-sm font-medium text-slate-400">
+                                                    Borrowed Date
                                                 </h3>
-                                                <p class="text-sm text-gray-500">
-                                                    {{ book.price }}
+                                                <p class="mt-1 text-sm text-white text-center">
+                                                    {{ borrowedDates[book.id] || '-' }}
                                                 </p>
                                             </div>
                                         </td>
                                         <td class="p-3 sm:px-6 sm:py-4 my-3 sm:my-0 whitespace-nowrap text-right text-sm font-medium">
-                                            <!-- <Link
-                                                href="#"
-                                                class="px-5 py-3 text-slate-200 hover:text-white bg-black hover:bg-red-600 rounded-lg shadow"
-                                            >Check Out</Link> -->
 
                                             <button
                                                 @click="showConfirmationAlert(book.id)"
@@ -53,17 +49,17 @@
                 </div>
             </div>
         </div>
-        <Pagination :links="books.links"/>
+        <!-- <Pagination :links="books.links"/> -->
     </div>
 </template>
 
 <script setup>
     import { ref, watch } from 'vue';
-    import { Link, usePage } from '@inertiajs/vue3';
+    import { usePage } from '@inertiajs/vue3';
     import axios from 'axios';
     import Pagination from '@/Components/MyComponents/Pagination.vue';
 
-    defineProps({
+    const props = defineProps({
         books: {
             type: Object,
         }
@@ -71,6 +67,7 @@
 
     const { props: pageProps } = usePage();
     const isReturned = ref(false);
+    const borrowedDates = ref({});
 
     watch(isReturned, (newVal, oldVal) => {
         if (newVal !== oldVal) {
@@ -110,7 +107,7 @@
                 });
             }
         });
-    }
+    };
 
     const returnBook = async (id) => {
 
@@ -118,7 +115,7 @@
             const res = await axios.post(`api/books/${id}/return`, { user_id: pageProps.auth.user.id });
 
             if (res.status === 200) {
-                isReturned.value = !isReturned.value 
+                isReturned.value = !isReturned.value
                 Swal.fire({
                     position: "center",
                     icon: "success",
@@ -138,5 +135,26 @@
             });
         }
     };
+
+    const getBorrowedDate = async (id) => {
+        try{
+            const res = await axios.get(`api/books/${id}/status`);
+
+            if (res.data.isBorrowed){
+                return new Date(res.data.borrowed_at).toLocaleDateString('en-GB')
+            } else {
+                return '-';
+            }
+        }catch(e){
+            console.log("Error checking Book Status:", e);
+            return '-'
+        }
+    };
+
+    watch(() => props.books, async (newBooks) => {
+        for (const book of newBooks) {
+            borrowedDates.value[book.id] = await getBorrowedDate(book.id);
+        }
+    }, { immediate: true });
 </script>
 

@@ -1,5 +1,7 @@
 <template>
-    <Head title="My Books" />
+    <head>
+      <title> Ny Books </title>
+    </head>
     <AppLayout>
         <template #content>
             <div class="h-full min-h-screen px-2">

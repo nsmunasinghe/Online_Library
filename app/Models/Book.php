@@ -24,4 +24,12 @@ class Book extends Model
                     ->withPivot('borrowed_at', 'returned_at')
                     ->withTimestamps();
     }
+
+    public function getBorrowedDateAttribute()
+    {
+        $user = auth()->user();
+        $borrowedRecord = $this->users()->where('user_id', $user->id)->first();
+
+        return $borrowedRecord ? $borrowedRecord->pivot->borrowed_at : null;
+    }
 }

@@ -1,4 +1,7 @@
 <template>
+    <head>
+      <title> Home </title>
+    </head>
     <AppLayout :canLogin="canLogin" :canRegister="canRegister">
         <template #content>
             <div class="mx-auto max-w-7xl h-full px-4 sm:px-6 lg:px-8">
@@ -39,7 +42,7 @@
     const updateBookStatus = (bookId, isBorrowed) => {
         const book = props.books.data.find(b => b.id === bookId);
         if (book) {
-            book.alreadyBorrowed = isBorrowed; // Update the borrowing status
+            book.alreadyBorrowed = isBorrowed;
         }
 
     };
