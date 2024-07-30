@@ -2,60 +2,65 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Book;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class BorrowingController extends Controller
 {
-    public function borrowBook(Request $request)
+
+    public function borrowBook(Request $request, Book $book)
     {
-        // Validate request data
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
-            'book_id' => 'required|exists:books,id',
-        ]);
+        try{
+            $loggedUser = User::find($request->user_id);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
+            // Check if the book is already borrowed
+            $alreadyBorrowed = $book->users()->wherePivot('returned_at', null)->exists();
+
+            if ($alreadyBorrowed) {
+                return response()->json(['error' => 'This book is already borrowed'], 400);
+            }
+
+            $loggedUser->books()->attach($book->id);
+
+            return response()->json(['message' => 'Book borrowed successfully'], 200);
         }
-
-        $user = User::find($request->user_id);
-        $book = Book::find($request->book_id);
-
-        // Check if the book is already borrowed
-        if ($user->borrowedBooks->contains($book->id)) {
-            return response()->json(['error' => 'Book is already borrowed by this user.'], 400);
+        catch(\Exception $e){
+            return response()->json(['error' => 'Book borrorw failed.'], 500);
         }
-
-        $user->borrowedBooks()->attach($book->id, ['borrowed_at' => now()]);
-
-        return response()->json(['message' => 'Book borrowed successfully']);
     }
 
-    public function returnBook(Request $request)
+    public function returnBook(Request $request, Book $book)
     {
-        // Validate request data
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
-            'book_id' => 'required|exists:books,id',
-        ]);
+        try{
+            $loggedUser = User::find($request->user_id);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
+            $alreadyBorrowed = $book->users()->wherePivot('returned_at', null)->exists();
+
+            if (!$alreadyBorrowed) {
+                return response()->json(['error' => 'This book is not borrowed by Anyone'], 400);
+            }
+
+            $loggedUser->books()->updateExistingPivot($book->id, ['returned_at' => now()]);
+
+            return response()->json(['message' => 'Book returned successfully'], 200);
         }
-
-        $user = User::find($request->user_id);
-        $book = Book::find($request->book_id);
-
-        // Check if the book was borrowed by the user
-        if (!$user->borrowedBooks->contains($book->id)) {
-            return response()->json(['error' => 'This book was not borrowed by the user.'], 400);
+        catch(\Exception $e){
+            return response()->json(['error' => 'Book return failed.'], 500);
         }
+    }
 
-        $user->borrowedBooks()->updateExistingPivot($book->id, ['returned_at' => now()]);
+    public function checkStatus(Book $book){
+        try{
+            // Check if the book is already borrowed
+            $alreadyBorrowed = $book->users()->wherePivot('returned_at', null)->exists();
 
-        return response()->json(['message' => 'Book returned successfully']);
+            return response()->json(['isBorrowed' => $alreadyBorrowed], 200);
+        }
+        catch(\Exception $e){
+            return response()->json(['error' => 'Book borrorw failed.'], 500);
+        }
     }
 }
