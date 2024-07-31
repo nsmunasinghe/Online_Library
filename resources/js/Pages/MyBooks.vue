@@ -4,7 +4,7 @@
     </head>
     <AppLayout>
         <template #content>
-            <div class="h-full min-h-screen px-2">
+            <div class="h-full min-h-screen px-2 pt-5">
                 <div class="mb-5">
                     <h1 class="my-5 font-serif text-4xl text-sky-200 text-center uppercase">My Books</h1>
                     <hr class="border-gray-700 mx-10">

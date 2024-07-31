@@ -1,11 +1,11 @@
 <template>
-    <nav class="bg-gray-900 px-3 border-b border-slate-700 fixed top-0 w-full z-10">
+    <nav class="bg-gray-950 px-3 border-b border-slate-800 fixed top-0 w-full z-10">
         <!-- Desktop menu -->
         <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
             <div class="relative flex h-20 items-center justify-between">
                 <div class="flex flex-1 h-full sm:items-stretch sm:justify-start">
                     <Link href="/" class="flex flex-shrink-0 items-center">
-                        <Logo class="self-center"/>
+                        <Logo class="self-center" :isLarge="false"/>
                     </Link>
                     <div class="hidden sm:ml-10 sm:flex sm:self-center">
                         <Link href="/" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white active:border-b-teal-500">Browse</Link>
@@ -21,7 +21,7 @@
                         <div>
                             <button
                                 type="button"
-                                class="relative flex rounded-2xl bg-gray-950 text-sm font-extrabold text-gray-400 hover:text-white px-5 py-2 focus:outline-none"
+                                class="relative flex rounded-2xl bg-gray-900 text-sm font-extrabold text-gray-400 hover:text-white px-5 py-2 focus:outline-none"
                                 id="user-menu-button"
                                 aria-expanded="false"
                                 aria-haspopup="true"
