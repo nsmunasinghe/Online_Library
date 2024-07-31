@@ -5,24 +5,26 @@
         <div
             class="w-[160px] h-[220px] sm:w-[180px] sm:h-[265px] flex flex-col p-2 items-center justify-between rounded-md shadow-lg ring-4"
             :class="{
-                'bg-slate-700 hover:ring-sky-500': !isBorrowed,
-                'bg-red-950 ring-red-700 hover:ring-red-500': isBorrowed
+                'bg-gradient-to-tr from-black via-blue-900 to-blue-500 ring-blue-900 hover:ring-blue-600': !isBorrowed,
+                'bg-gradient-to-tr from-black via-amber-900 to-yellow-700 ring-yellow-600 hover:ring-yellow-400': (isBorrowed && isBorrowedByYou),
+                'bg-gradient-to-tr from-black via-red-900 to-red-500 ring-red-700 hover:ring-red-500': isBorrowed && !isBorrowedByYou,
             }"
         >
             <p class="font-serif text-white text-sn sm:text-md text-center font-extrabold p-1 bg-black/25 rounded-md w-full">{{ title }}</p>
-            <p class="text-gray-300 text-xs sm:text-sm text-center line-clamp-3">{{ description }}</p>
+            <p class="text-white/50 text-xs sm:text-sm text-center line-clamp-3">{{ description }}</p>
             <p class="text-white text-xs italic">{{ genre }}</p>
             <p class="text-white text-md sm:text-lg font-bold">Rs. {{ price }}</p>
 
             <button
                 @click="showConfirmationAlert"
-                class="w-full p-1 flex justify-center items-center rounded-lg font-extrabold text-md sm:text-lg hover:bg-opacity-80"
+                class="w-full p-1 flex justify-center items-center rounded-lg font-extrabold text-md sm:text-lg hover:bg-opacity-80 shadow-md"
                 :class="{
-                    'bg-green-300 hover:text-white hover:bg-green-500': !isBorrowed,
-                    'bg-red-500 text-white hover:bg-red-700': isBorrowed
+                    'bg-blue-600 text-white hover:text-white hover:bg-blue-400': !isBorrowed,
+                    'bg-yellow-600 text-black hover:bg-yellow-300': (isBorrowed && isBorrowedByYou),
+                    'bg-red-700 text-white hover:bg-red-500': isBorrowed && !isBorrowedByYou,
                 }"
             >
-                {{ isBorrowed ? 'Borrowed' : 'Borrow' }}
+            <i v-if="isBorrowedByYou" class="fa-solid fa-circle-check mr-2 animate-pulse"/> {{ isBorrowed ? isBorrowedByYou ? 'You Borrowed' :'Borrowed' : 'Borrow' }}
             </button>
 
             <!-- <button
@@ -72,15 +74,17 @@ const props = defineProps({
 
 const { props: pageProps } = usePage();
 const isBorrowed = ref(props.status);
+const isBorrowedByYou = ref(false);
 const emit = defineEmits(['updateBorrowStatus']);
 
-watch(isBorrowed, (newVal) => {
-    emit('updateBorrowStatus', props.bookId, newVal);
+watch([isBorrowed, isBorrowedByYou], ([newBorrowed, newBorrowedByYou]) => {
+    emit('updateBorrowStatus', props.bookId, newBorrowed, newBorrowedByYou);
 });
 
 onMounted(async () => {
     const res = await axios.get(`api/books/${props.bookId}/status`);
     isBorrowed.value = res.data.isBorrowed;
+    isBorrowedByYou.value = res.data.borrowedUserId === pageProps.auth.user.id;
 });
 
 // -------------------------- ALERT ---------------------
@@ -124,6 +128,7 @@ const borrowBook = async () => {
         const response = await axios.post(`api/books/${props.bookId}/borrow`, { user_id: pageProps.auth.user.id });
 
         if (response.status === 200) {
+            isBorrowedByYou.value = true;
             isBorrowed.value = true
 
             Swal.fire({

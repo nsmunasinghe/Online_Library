@@ -59,7 +59,8 @@ class BorrowingController extends Controller
             if ($userBook) {
                 return response()->json([
                     'isBorrowed' => true,
-                    'borrowed_at' => $userBook->pivot->borrowed_at, // Assuming you have the 'borrowed_at' field
+                    'borrowedUserId' => $userBook->pivot->user_id,
+                    'borrowed_at' => $userBook->pivot->borrowed_at,
                 ], 200);
             } else {
                 return response()->json(['isBorrowed' => false], 200);

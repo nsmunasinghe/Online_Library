@@ -1,6 +1,6 @@
 <template>
     <!-- component -->
-    <div class='flex flex-col items-center justify-center mt-5 mb-10'>
+    <div class='flex flex-col items-center justify-center mb-10'>
         <div class="w-full sm:w-1/2">
             <!-- SearchBar -->
             <div class="flex rounded-full bg-[rgb(5,11,19)] px-2 w-full max-w-[600px]">

@@ -2,7 +2,7 @@
     <footer class="bg-white dark:bg-gray-950">
         <div class="container flex flex-col items-center justify-between p-6 mx-auto space-y-4 sm:space-y-0 sm:flex-row">
             <Link href="/" class="flex flex-shrink-0 items-center">
-                <h1 class="text-blue-300 text-md font-bold">Online Library</h1>
+                <Logo />
             </Link>
 
             <p class="text-sm text-slate-600 text-center">© Copyright 2021 Nimesh S. Munasinghe. All Rights Reserved.</p>
@@ -26,5 +26,6 @@
 
 <script setup>
     import { Link } from '@inertiajs/vue3';
+    import Logo from '@/Components/MyComponents/Logo.vue';
 
 </script>

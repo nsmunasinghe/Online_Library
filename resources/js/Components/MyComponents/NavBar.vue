@@ -1,20 +1,19 @@
 <template>
-    <nav class="bg-gray-900 px-3">
+    <nav class="bg-gray-900 px-3 border-b border-slate-700 fixed top-0 w-full z-10">
         <!-- Desktop menu -->
         <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-            <div class="relative flex h-16 items-center justify-between">
-                <div class="flex flex-1 items-center sm:items-stretch sm:justify-start">
-                    <Link href="/" class="absolute flex flex-shrink-0 items-center sm:relative">
-                        <h1 class="text-blue-300 text-xl font-bold sm:text-2xl">Online Library</h1>
+            <div class="relative flex h-20 items-center justify-between">
+                <div class="flex flex-1 h-full sm:items-stretch sm:justify-start">
+                    <Link href="/" class="flex flex-shrink-0 items-center">
+                        <Logo class="self-center"/>
                     </Link>
-                    <div class="hidden sm:ml-10 sm:flex">
-                        <div class="flex">
-                            <Link href="/" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Browse</Link>
-                            <Link v-if="$page.props.auth.user" href="/mybooks" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">My Books</Link>
-                        </div>
+                    <div class="hidden sm:ml-10 sm:flex sm:self-center">
+                        <Link href="/" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white active:border-b-teal-500">Browse</Link>
+                        <Link v-if="$page.props.auth.user" href="/mybooks" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">My Books</Link>
                     </div>
                 </div>
 
+                <!-- Profile -->
                 <div>
                     <!-- Profile Dropdown -->
                     <div v-if="$page.props.auth.user" class="hidden relative ml-3 sm:block">
@@ -48,8 +47,8 @@
 
                     <div v-else class="mr-7 sm:mr-none">
                         <Link :href="route('login')" class="mr-6 text-sm text-slate-400 font-bold hover:text-white">Log in</Link>
-                        <Link 
-                            :href="route('register')" 
+                        <Link
+                            :href="route('register')"
                             class="text-sm text-slate-400 font-bold hover:text-white"
                         >Register</Link>
                     </div>
@@ -88,6 +87,7 @@
 <script setup>
     import { ref, computed, onBeforeUnmount } from 'vue';
     import { Link, usePage } from '@inertiajs/vue3';
+    import Logo from '@/Components/MyComponents/Logo.vue';
 
     const { auth } = usePage().props;
     const userName = auth.user?.name || '';

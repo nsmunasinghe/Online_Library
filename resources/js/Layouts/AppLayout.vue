@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gray-900 h-full">
+    <div class="bg-gray-900 h-full mt-20">
         <NavBar :canLogin="canLogin" :canRegister="canRegister"/>
         <slot name="content"/>
         <Footer />

@@ -5,7 +5,7 @@
     <AppLayout :canLogin="canLogin" :canRegister="canRegister">
         <template #content>
             <div class="mx-auto max-w-7xl h-full px-4 sm:px-6 lg:px-8">
-                <div class="w-full h-full min-h-screen">
+                <div class="w-full h-full min-h-screen pt-5">
                     <SearchBar />
                     <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-5 gap-8 xl:gap-x-0">
                         <BookCard
@@ -39,7 +39,7 @@
         books: Object
     });
 
-    const updateBookStatus = (bookId, isBorrowed) => {
+    const updateBookStatus = (bookId, isBorrowed, isBorrowedByYou) => {
         const book = props.books.data.find(b => b.id === bookId);
         if (book) {
             book.alreadyBorrowed = isBorrowed;
