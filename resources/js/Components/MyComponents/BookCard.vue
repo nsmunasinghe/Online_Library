@@ -5,9 +5,9 @@
         <div
             class="w-[160px] h-[220px] sm:w-[180px] sm:h-[265px] flex flex-col p-2 items-center justify-between rounded-md shadow-lg ring-4"
             :class="{
-                'bg-gradient-to-tr from-black via-blue-900 to-blue-500 ring-blue-900 hover:ring-blue-600': !isBorrowed,
-                'bg-gradient-to-tr from-black via-amber-900 to-yellow-700 ring-yellow-600 hover:ring-yellow-400': (isBorrowed && isBorrowedByYou),
-                'bg-gradient-to-tr from-black via-red-900 to-red-500 ring-red-700 hover:ring-red-500': isBorrowed && !isBorrowedByYou,
+                'bg-gradient-to-tr from-black via-blue-900 to-blue-500 ring-blue-900 hover:ring-blue-600': !status.isBorrowed,
+                'bg-gradient-to-tr from-black via-amber-900 to-yellow-700 ring-yellow-600 hover:ring-yellow-400': (status.isBorrowed && status.byYou),
+                'bg-gradient-to-tr from-black via-red-900 to-red-500 ring-red-700 hover:ring-red-500': status.isBorrowed && !status.byYou,
             }"
         >
             <p class="font-serif text-white text-sn sm:text-md text-center font-extrabold p-1 bg-black/25 rounded-md w-full">{{ title }}</p>
@@ -17,23 +17,15 @@
 
             <button
                 @click="showConfirmationAlert"
-                class="w-full p-1 flex justify-center items-center rounded-lg font-extrabold text-md sm:text-lg hover:bg-opacity-80 shadow-md"
+                class="w-full p-1 flex flex-shrink-1 truncate justify-center items-center rounded-lg font-extrabold text-md sm:text-lg hover:bg-opacity-80 shadow-md"
                 :class="{
-                    'bg-blue-600 text-white hover:text-white hover:bg-blue-400': !isBorrowed,
-                    'bg-yellow-600 text-black hover:bg-yellow-300': (isBorrowed && isBorrowedByYou),
-                    'bg-red-700 text-white hover:bg-red-500': isBorrowed && !isBorrowedByYou,
+                    'bg-blue-600 text-white hover:text-white hover:bg-blue-400': !status.isBorrowed,
+                    'bg-yellow-600 text-black hover:bg-yellow-300': (status.isBorrowed && status.byYou),
+                    'bg-red-700 text-white hover:bg-red-500': status.isBorrowed && !status.byYou,
                 }"
             >
-            <i v-if="isBorrowedByYou" class="fa-solid fa-circle-check mr-2 animate-pulse"/> {{ isBorrowed ? isBorrowedByYou ? 'You Borrowed' :'Borrowed' : 'Borrow' }}
+            <i v-if="status.byYou" class="fa-solid fa-circle-check mr-2 animate-pulse"/> {{ status.isBorrowed ? status.byYou ? 'You Borrowed' :'Borrowed' : 'Borrow' }}
             </button>
-
-            <!-- <button
-                @click="borrowBook"
-                class="w-full p-1 flex justify-center items-center bg-green-300 rounded-lg font-extrabold text-lg hover:bg-green-500"
-            >
-                Borrow
-            </button> -->
-
         </div>
     </div>
 </template>
@@ -65,7 +57,7 @@ const props = defineProps({
         type: Number,
         required: true
     },
-    status: {
+    borrowStatus: {
         type: Boolean,
         default: false,
         required: true
@@ -73,18 +65,25 @@ const props = defineProps({
 });
 
 const { props: pageProps } = usePage();
-const isBorrowed = ref(props.status);
-const isBorrowedByYou = ref(false);
 const emit = defineEmits(['updateBorrowStatus']);
 
-watch([isBorrowed, isBorrowedByYou], ([newBorrowed, newBorrowedByYou]) => {
-    emit('updateBorrowStatus', props.bookId, newBorrowed, newBorrowedByYou);
+const status = ref({
+    isBorrowed: props.borrowStatus,
+    byYou: false
 });
 
+watch(() => status.value, (newStatus) => {
+    emit('updateBorrowStatus', props.bookId, newStatus);
+}, { deep: true });
+
 onMounted(async () => {
-    const res = await axios.get(`api/books/${props.bookId}/status`);
-    isBorrowed.value = res.data.isBorrowed;
-    isBorrowedByYou.value = res.data.borrowedUserId === pageProps.auth.user.id;
+    try{
+        const res = await axios.get(`api/books/${props.bookId}/status`);
+        status.value.isBorrowed = res.data.isBorrowed;
+        status.value.byYou = res.data.borrowedUserId === pageProps.auth.user.id;
+    }catch(e){
+        console.log('Error when Mounting Book Card:', e);
+    }
 });
 
 // -------------------------- ALERT ---------------------
@@ -128,8 +127,8 @@ const borrowBook = async () => {
         const response = await axios.post(`api/books/${props.bookId}/borrow`, { user_id: pageProps.auth.user.id });
 
         if (response.status === 200) {
-            isBorrowedByYou.value = true;
-            isBorrowed.value = true
+            status.value.byYou = true;
+            status.value.isBorrowed = true;
 
             Swal.fire({
                 position: "center",
@@ -138,8 +137,6 @@ const borrowBook = async () => {
                 showConfirmButton: false,
                 timer: 1500
             });
-
-            console.log(pageProps.auth.user ? true : false);
         }
     } catch (error) {
         console.error('Error borrowing book:', error);
@@ -150,7 +147,7 @@ const borrowBook = async () => {
             showConfirmButton: false,
             timer: 1500
         });
-}
+    }
 };
 
 </script>
